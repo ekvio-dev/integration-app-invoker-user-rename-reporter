@@ -7,7 +7,9 @@ use Ekvio\Integration\Contracts\Invoker;
 use Ekvio\Integration\Contracts\Profiler;
 use Ekvio\Integration\Contracts\Report\Converter;
 use Ekvio\Integration\Contracts\Report\Reporter;
+use League\Csv\Exception;
 use League\Csv\Reader;
+use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use RuntimeException;
 
@@ -79,11 +81,11 @@ class TypicalUserRenameReport implements Invoker
             return;
         }
 
-        if(empty($arguments['reportFilename'])) {
+        if(empty($arguments['parameters']['reportFilename'])) {
             throw new RuntimeException('Report file name not set');
         }
 
-        $filename = $arguments['reportFilename'];
+        $filename = $arguments['parameters']['reportFilename'];
         $records = [];
         if($this->append) {
             $this->profiler->profile(sprintf('Get records from %s report for append mode', $filename));
@@ -105,8 +107,8 @@ class TypicalUserRenameReport implements Invoker
     /**
      * @param string $filename
      * @return array
-     * @throws \League\Csv\Exception
-     * @throws \League\Flysystem\FileNotFoundException
+     * @throws Exception
+     * @throws FileNotFoundException
      */
     private function getExistReportRecords(string $filename): array
     {
